@@ -20,6 +20,7 @@ export interface PieDataItem {
   name: string;
   value: number;
   fill: string;
+  [key: string]: string | number;
 }
 
 // Yearly totals with online/offline breakdown
