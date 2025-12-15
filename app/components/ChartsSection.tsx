@@ -224,6 +224,13 @@ export default function ChartsSection() {
                     name="总反馈数"
                     dot={{ fill: "#dc2626", strokeWidth: 2, r: 6 }}
                     activeDot={{ r: 8, fill: "#dc2626" }}
+                    label={{
+                      position: "top",
+                      fill: "#dc2626",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      offset: 10,
+                    }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -299,12 +306,24 @@ export default function ChartsSection() {
                     fill="#0891b2"
                     radius={[6, 6, 0, 0]}
                     name="线上"
+                    label={{
+                      position: "top",
+                      fill: "#0891b2",
+                      fontSize: 12,
+                      fontWeight: 600,
+                    }}
                   />
                   <Bar
                     dataKey="线下"
                     fill="#d97706"
                     radius={[6, 6, 0, 0]}
                     name="线下"
+                    label={{
+                      position: "top",
+                      fill: "#d97706",
+                      fontSize: 12,
+                      fontWeight: 600,
+                    }}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -449,27 +468,57 @@ export default function ChartsSection() {
                     dataKey="城建城管环保"
                     stackId="a"
                     fill={categoryColors.城建城管环保}
+                    label={{
+                      position: "inside",
+                      fill: "#fff",
+                      fontSize: 11,
+                      fontWeight: 500,
+                    }}
                   />
                   <Bar
                     dataKey="科教文卫体"
                     stackId="a"
                     fill={categoryColors.科教文卫体}
+                    label={{
+                      position: "inside",
+                      fill: "#fff",
+                      fontSize: 11,
+                      fontWeight: 500,
+                    }}
                   />
                   <Bar
                     dataKey="工业交通"
                     stackId="a"
                     fill={categoryColors.工业交通}
+                    label={{
+                      position: "inside",
+                      fill: "#fff",
+                      fontSize: 11,
+                      fontWeight: 500,
+                    }}
                   />
                   <Bar
                     dataKey="政治法律党群"
                     stackId="a"
                     fill={categoryColors.政治法律党群}
+                    label={{
+                      position: "inside",
+                      fill: "#fff",
+                      fontSize: 11,
+                      fontWeight: 500,
+                    }}
                   />
                   <Bar
                     dataKey="财政农业旅贸"
                     stackId="a"
                     fill={categoryColors.财政农业旅贸}
                     radius={[6, 6, 0, 0]}
+                    label={{
+                      position: "inside",
+                      fill: "#fff",
+                      fontSize: 11,
+                      fontWeight: 500,
+                    }}
                   />
                 </BarChart>
               </ResponsiveContainer>
