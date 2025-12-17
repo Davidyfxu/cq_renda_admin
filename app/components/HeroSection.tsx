@@ -83,7 +83,7 @@ export default function HeroSection() {
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-8 md:mb-10"
         >
           <span className="bg-gradient-to-r from-red-600 via-red-500 to-amber-500 bg-clip-text text-transparent">
-            长庆街道人大
+            人大长庆街道工委
           </span>
         </motion.h1>
 
