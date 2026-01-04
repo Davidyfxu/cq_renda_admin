@@ -15,6 +15,8 @@ export default async function Home() {
   const serializedFeedback = feedbackData.map((item) => ({
     content: item.content,
     create_time: item.create_time.toISOString(),
+    issue_category: item?.issue_category || "",
+    issuer: item?.issuer || "",
   }));
 
   return (
