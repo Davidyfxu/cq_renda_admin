@@ -10,16 +10,25 @@ interface FeedbackItem {
   key: string;
   content: string;
   create_time: string;
+  issue_category: string;
+  issuer: string;
   aiTag: { label: string; color: string };
 }
 
 interface FeedbackRecord {
   content: string;
   create_time: string;
+  issue_category: string;
+  issuer: string;
 }
 
 interface FeedbackTableProps {
-  data: Array<{ content: string; create_time: Date | string }>;
+  data: Array<{
+    content: string;
+    create_time: Date | string;
+    issue_category: string;
+    issuer: string;
+  }>;
 }
 
 const POLLING_INTERVAL = 30 * 1000; // 30 seconds
@@ -55,10 +64,19 @@ export default function FeedbackTable({
     return () => clearInterval(intervalId);
   }, [fetchFeedback]);
 
+  // Mask issuer: show first 5 characters, rest as asterisks
+  const maskIssuer = (issuer: string): string => {
+    if (!issuer) return "";
+    if (issuer.length <= 5) return issuer;
+    return issuer.slice(0, 5) + "*".repeat(issuer.length - 5);
+  };
+
   const tableData: FeedbackItem[] = data.map((item, index) => ({
     key: String(index),
     content: item.content,
     create_time: formatDate(item.create_time),
+    issue_category: item.issue_category || "",
+    issuer: maskIssuer(item.issuer || ""),
     aiTag: generateAITag(item.content, index),
   }));
 
@@ -67,7 +85,7 @@ export default function FeedbackTable({
       title: "反馈内容",
       dataIndex: "content",
       key: "content",
-      width: "45%",
+      width: "35%",
       render: (text: string) => (
         <Tooltip
           title={text}
@@ -82,10 +100,40 @@ export default function FeedbackTable({
       title: "提交时间",
       dataIndex: "create_time",
       key: "create_time",
-      width: "18%",
+      width: "14%",
       responsive: ["sm"],
       render: (text: string) => (
         <span className="text-slate-500 font-mono text-sm">{text}</span>
+      ),
+    },
+    {
+      title: "问题分类",
+      dataIndex: "issue_category",
+      key: "issue_category",
+      width: "12%",
+      align: "center",
+      render: (text: string) => (
+        <Tag
+          style={{
+            backgroundColor: "#f0fdf4",
+            borderColor: "#22c55e",
+            color: "#16a34a",
+            fontWeight: 500,
+            padding: "4px 12px",
+          }}
+        >
+          {text || "未分类"}
+        </Tag>
+      ),
+    },
+    {
+      title: "提问人",
+      dataIndex: "issuer",
+      key: "issuer",
+      width: "12%",
+      align: "center",
+      render: (text: string) => (
+        <span className="text-slate-600 font-medium">{text || "-"}</span>
       ),
     },
     // {

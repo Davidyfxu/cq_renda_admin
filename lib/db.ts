@@ -14,14 +14,15 @@ const pool = mysql.createPool({
 export interface FeedbackRecord {
   content: string;
   create_time: Date;
+  issue_category?: string;
+  issuer?: string;
 }
 
 export async function getAllFeedback(): Promise<FeedbackRecord[]> {
   const [rows] = await pool.execute(
-    "SELECT content, create_time FROM renda_feedback ORDER BY create_time DESC"
+    "SELECT content, create_time, issue_category, issuer FROM renda_feedback ORDER BY create_time DESC"
   );
   return rows as FeedbackRecord[];
 }
 
 export default pool;
-

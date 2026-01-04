@@ -12,6 +12,8 @@ export async function GET() {
     const serializedFeedback = feedbackData.map((item) => ({
       content: item.content,
       create_time: item.create_time.toISOString(),
+      issue_category: item?.issue_category || "",
+      issuer: item?.issuer || "",
     }));
 
     return NextResponse.json(serializedFeedback);
@@ -23,4 +25,3 @@ export async function GET() {
     );
   }
 }
-
