@@ -112,49 +112,55 @@ export default function FeedbackTable({
       key: "issue_category",
       width: "12%",
       align: "center",
-      render: (text: string) => (
-        <Tag
-          style={{
-            backgroundColor: "#f0fdf4",
-            borderColor: "#22c55e",
-            color: "#16a34a",
-            fontWeight: 500,
-            padding: "4px 12px",
-          }}
-        >
-          {text || "未分类"}
-        </Tag>
-      ),
+      render: (text: string) =>
+        text ? (
+          <Tag
+            style={{
+              backgroundColor: "#f0fdf4",
+              borderColor: "#22c55e",
+              color: "#16a34a",
+              fontWeight: 500,
+              padding: "4px 12px",
+            }}
+          >
+            {text}
+          </Tag>
+        ) : (
+          ""
+        ),
     },
     {
       title: "提问人",
       dataIndex: "issuer",
       key: "issuer",
-      width: "12%",
+      width: "10%",
       align: "center",
       render: (text: string) => (
         <span className="text-slate-600 font-medium">{text || "-"}</span>
       ),
     },
-    // {
-    //   title: "AI 智能分析",
-    //   key: "aiTag",
-    //   width: "17%",
-    //   align: "center",
-    //   render: (_, record) => (
-    //     <Tag
-    //       style={{
-    //         backgroundColor: `${record.aiTag.color}15`,
-    //         borderColor: record.aiTag.color,
-    //         color: record.aiTag.color,
-    //         fontWeight: 500,
-    //         padding: "4px 12px",
-    //       }}
-    //     >
-    //       {record.aiTag.label}
-    //     </Tag>
-    //   ),
-    // },
+    {
+      title: "所属辖区",
+      dataIndex: "community",
+      key: "community",
+      align: "center",
+      render: (text: string) =>
+        text ? (
+          <Tag
+            style={{
+              backgroundColor: "#eff6ff",
+              borderColor: "#3b82f6",
+              color: "#2563eb",
+              fontWeight: 500,
+              padding: "4px 12px",
+            }}
+          >
+            {text}
+          </Tag>
+        ) : (
+          ""
+        ),
+    },
     {
       title: "处理状态",
       key: "status",

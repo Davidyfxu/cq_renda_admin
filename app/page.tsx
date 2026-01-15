@@ -1,8 +1,9 @@
-import { getAllFeedback } from "@/lib/db";
+import { getAllFeedback, getAllWelfareFeedback } from "@/lib/db";
 import HeroSection from "./components/HeroSection";
 import ChartsSection from "./components/ChartsSection";
 import WordCloud from "./components/WordCloud";
 import FeedbackTable from "./components/FeedbackTable";
+import WelfareFeedbackTable from "./components/WelfareFeedbackTable";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -10,6 +11,7 @@ export const revalidate = 0;
 export default async function Home() {
   // Fetch data from MySQL
   const feedbackData = await getAllFeedback();
+  const welfareFeedbackData = await getAllWelfareFeedback();
 
   // Serialize dates for client components
   const serializedFeedback = feedbackData.map((item) => ({
@@ -17,6 +19,14 @@ export default async function Home() {
     create_time: item.create_time.toISOString(),
     issue_category: item?.issue_category || "",
     issuer: item?.issuer || "",
+    community: item?.community || "",
+  }));
+
+  // Serialize welfare feedback data
+  const serializedWelfareFeedback = welfareFeedbackData.map((item) => ({
+    public_welfare: item.public_welfare || "",
+    issuer: item.issuer || "",
+    community: item.community || "",
   }));
 
   return (
@@ -32,6 +42,9 @@ export default async function Home() {
 
       {/* Feedback Table - Real-time data from MySQL */}
       <FeedbackTable data={serializedFeedback} />
+
+      {/* Welfare Feedback Table - 2026年街道民生实事征集 */}
+      <WelfareFeedbackTable data={serializedWelfareFeedback} />
 
       {/* Footer */}
       <footer className="py-12 sm:py-16 px-4 bg-gradient-to-t from-slate-50 to-transparent">
