@@ -15,11 +15,14 @@ export default async function Home() {
 
   // Serialize dates for client components
   const serializedFeedback = feedbackData.map((item) => ({
+    id: item.id,
     content: item.content,
     create_time: item.create_time.toISOString(),
     issue_category: item?.issue_category || "",
     issuer: item?.issuer || "",
     community: item?.community || "",
+    status: item?.status || "待审核",
+    issue_fixer: item?.issue_fixer || "",
   }));
 
   // Serialize welfare feedback data

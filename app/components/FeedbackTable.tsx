@@ -2,38 +2,66 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Table, Tag, Tooltip, ConfigProvider } from "antd";
+import {
+  Table,
+  Tag,
+  Tooltip,
+  ConfigProvider,
+  Modal,
+  Button,
+  Form,
+  Input,
+  Select,
+  message,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { formatDate, generateAITag } from "@/lib/dataProcessing";
 
 interface FeedbackItem {
   key: string;
-  content: string;
-  create_time: string;
-  issue_category: string;
-  issuer: string;
-  aiTag: { label: string; color: string };
-}
-
-interface FeedbackRecord {
+  id: number;
   content: string;
   create_time: string;
   issue_category: string;
   issuer: string;
   community: string;
+  status: string;
+  issue_fixer: string;
+  aiTag: { label: string; color: string };
+}
+
+interface FeedbackRecord {
+  id: number;
+  content: string;
+  create_time: string;
+  issue_category: string;
+  issuer: string;
+  community: string;
+  status: string;
+  issue_fixer: string;
 }
 
 interface FeedbackTableProps {
   data: Array<{
+    id: number;
     content: string;
     create_time: Date | string;
     community: string;
     issue_category: string;
     issuer: string;
+    status?: string;
+    issue_fixer?: string;
   }>;
 }
 
 const POLLING_INTERVAL = 30 * 1000; // 30 seconds
+
+// Status options for the dropdown
+const STATUS_OPTIONS = [
+  { value: "待审核", label: "待审核", color: "#0891b2", bg: "#cffafe" },
+  { value: "处理中", label: "处理中", color: "#d97706", bg: "#fef3c7" },
+  { value: "已处理", label: "已处理", color: "#059669", bg: "#d1fae5" },
+];
 
 export default function FeedbackTable({
   data: initialData,
@@ -41,6 +69,10 @@ export default function FeedbackTable({
   const [data, setData] = useState(initialData);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentRecord, setCurrentRecord] = useState<FeedbackItem | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form] = Form.useForm();
 
   const fetchFeedback = useCallback(async () => {
     try {
@@ -73,13 +105,69 @@ export default function FeedbackTable({
     return issuer.slice(0, 5) + "*".repeat(issuer.length - 5);
   };
 
+  // Open modal for editing status
+  const handleOpenModal = (record: FeedbackItem) => {
+    setCurrentRecord(record);
+    form.setFieldsValue({
+      status: record.status || "待审核",
+      issue_fixer: record.issue_fixer || "",
+    });
+    setIsModalOpen(true);
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setCurrentRecord(null);
+    form.resetFields();
+  };
+
+  // Submit status update
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      if (!currentRecord) return;
+
+      setIsSubmitting(true);
+      const response = await fetch("/api/feedback", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: currentRecord.id,
+          status: values.status,
+          issue_fixer: values.issue_fixer,
+        }),
+      });
+
+      if (response.ok) {
+        message.success("状态更新成功");
+        handleCloseModal();
+        // Refresh data
+        fetchFeedback();
+      } else {
+        const errorData = await response.json();
+        message.error(errorData.error || "更新失败");
+      }
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      message.error("更新失败，请重试");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const tableData: FeedbackItem[] = data.map((item, index) => ({
     key: String(index),
+    id: item.id,
     content: item.content,
     create_time: formatDate(item.create_time),
     community: item?.community || "",
     issue_category: item.issue_category || "",
     issuer: maskIssuer(item.issuer || ""),
+    status: item.status || "待审核",
+    issue_fixer: item.issue_fixer || "",
     aiTag: generateAITag(item.content, index),
   }));
 
@@ -166,30 +254,45 @@ export default function FeedbackTable({
     },
     {
       title: "处理状态",
+      dataIndex: "status",
       key: "status",
-      width: "20%",
+      width: "12%",
       align: "center",
-      render: (_, record) => {
-        const statusIndex = Number.parseInt(record.key) % 2;
-        const statuses = [
-          // { text: "已处理", color: "#059669", bg: "#d1fae5" },
-          { text: "处理中", color: "#d97706", bg: "#fef3c7" },
-          { text: "待审核", color: "#0891b2", bg: "#cffafe" },
-        ];
-        const status = statuses[statusIndex];
+      render: (text: string) => {
+        const statusConfig =
+          STATUS_OPTIONS.find((s) => s.value === text) || STATUS_OPTIONS[0];
         return (
           <span
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium"
-            style={{ backgroundColor: status.bg, color: status.color }}
+            style={{
+              backgroundColor: statusConfig.bg,
+              color: statusConfig.color,
+            }}
           >
             <span
               className="w-2 h-2 rounded-full animate-pulse"
-              style={{ backgroundColor: status.color }}
+              style={{ backgroundColor: statusConfig.color }}
             />
-            {status.text}
+            {statusConfig.label}
           </span>
         );
       },
+    },
+    {
+      title: "操作",
+      key: "action",
+      width: "10%",
+      align: "center",
+      render: (_, record) => (
+        <Button
+          type="link"
+          size="small"
+          onClick={() => handleOpenModal(record)}
+          style={{ color: "#dc2626", fontWeight: 500 }}
+        >
+          修改状态
+        </Button>
+      ),
     },
   ];
 
@@ -327,6 +430,70 @@ export default function FeedbackTable({
           </div>
         </motion.div>
       </div>
+
+      {/* Status Update Modal */}
+      <Modal
+        title="修改处理状态"
+        open={isModalOpen}
+        onCancel={handleCloseModal}
+        footer={null}
+        destroyOnClose
+        centered
+      >
+        <div className="py-4">
+          {currentRecord && (
+            <div className="mb-4 p-3 bg-slate-50 rounded-lg">
+              <p className="text-sm text-slate-500 mb-1">反馈内容：</p>
+              <p className="text-slate-700 line-clamp-3">
+                {currentRecord.content}
+              </p>
+            </div>
+          )}
+          <Form form={form} layout="vertical" onFinish={handleSubmit}>
+            <Form.Item
+              name="status"
+              label="处理状态"
+              rules={[{ required: true, message: "请选择处理状态" }]}
+            >
+              <Select
+                placeholder="请选择处理状态"
+                options={STATUS_OPTIONS.map((s) => ({
+                  value: s.value,
+                  label: (
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: s.color }}
+                      />
+                      {s.label}
+                    </span>
+                  ),
+                }))}
+              />
+            </Form.Item>
+            <Form.Item
+              name="issue_fixer"
+              label="问题解决人"
+              rules={[{ required: true, message: "请输入问题解决人" }]}
+            >
+              <Input placeholder="请输入问题解决人姓名" />
+            </Form.Item>
+            <Form.Item className="mb-0 flex justify-end">
+              <div className="flex gap-2 justify-end">
+                <Button onClick={handleCloseModal}>取消</Button>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={isSubmitting}
+                  style={{ backgroundColor: "#dc2626" }}
+                >
+                  确认提交
+                </Button>
+              </div>
+            </Form.Item>
+          </Form>
+        </div>
+      </Modal>
     </section>
   );
 }
