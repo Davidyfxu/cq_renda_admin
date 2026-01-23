@@ -20,12 +20,14 @@ interface FeedbackRecord {
   create_time: string;
   issue_category: string;
   issuer: string;
+  community: string;
 }
 
 interface FeedbackTableProps {
   data: Array<{
     content: string;
     create_time: Date | string;
+    community: string;
     issue_category: string;
     issuer: string;
   }>;
@@ -75,6 +77,7 @@ export default function FeedbackTable({
     key: String(index),
     content: item.content,
     create_time: formatDate(item.create_time),
+    community: item?.community || "",
     issue_category: item.issue_category || "",
     issuer: maskIssuer(item.issuer || ""),
     aiTag: generateAITag(item.content, index),
