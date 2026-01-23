@@ -14,6 +14,7 @@ export async function GET() {
       create_time: item.create_time.toISOString(),
       issue_category: item?.issue_category || "",
       issuer: item?.issuer || "",
+      community: item?.community || "",
     }));
 
     return NextResponse.json(serializedFeedback);
