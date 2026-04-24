@@ -28,7 +28,8 @@ export const yearlyTotals: YearlyData[] = [
   { year: "2022", total: 290, online: 79, offline: 211 },
   { year: "2023", total: 116, online: 116, offline: 0 },
   { year: "2024", total: 261, online: 261, offline: 0 },
-  { year: "2025", total: 132, online: 132, offline: 0 },
+  { year: "2025", total: 237, online: 237, offline: 0 },
+  { year: "2026(1-4月)", total: 83, online: 83, offline: 0 },
 ];
 
 // Category breakdown by year
@@ -60,20 +61,28 @@ export const categoryByYear: CategoryData[] = [
   {
     year: "2025",
     财政农业旅贸: 1,
-    城建城管环保: 73,
+    城建城管环保: 130,
     工业交通: 0,
-    科教文卫体: 54,
-    政治法律党群: 4,
+    科教文卫体: 98,
+    政治法律党群: 8,
+  },
+  {
+    year: "2026(1-4月)",
+    财政农业旅贸: 1,
+    城建城管环保: 54,
+    工业交通: 1,
+    科教文卫体: 24,
+    政治法律党群: 3,
   },
 ];
 
 // Aggregated category data for pie chart (all years combined)
 export const aggregatedCategories: PieDataItem[] = [
-  { name: "城建城管环保", value: 257 + 72 + 193 + 73, fill: "#dc2626" },
-  { name: "科教文卫体", value: 31 + 28 + 45 + 54, fill: "#0891b2" },
-  { name: "工业交通", value: 2 + 11 + 15 + 0, fill: "#d97706" },
-  { name: "政治法律党群", value: 0 + 3 + 7 + 4, fill: "#7c3aed" },
-  { name: "财政农业旅贸", value: 0 + 2 + 1 + 1, fill: "#059669" },
+  { name: "城建城管环保", value: 257 + 72 + 193 + 130 + 54, fill: "#dc2626" },
+  { name: "科教文卫体", value: 31 + 28 + 45 + 98 + 24, fill: "#0891b2" },
+  { name: "工业交通", value: 2 + 11 + 15 + 0 + 1, fill: "#d97706" },
+  { name: "政治法律党群", value: 0 + 3 + 7 + 8 + 3, fill: "#7c3aed" },
+  { name: "财政农业旅贸", value: 0 + 2 + 1 + 1 + 1, fill: "#059669" },
 ];
 
 // Color mapping for categories
@@ -99,7 +108,7 @@ export const summaryStats = {
   totalOffline: yearlyTotals.reduce((sum, d) => sum + d.offline, 0),
   yearsTracked: yearlyTotals.length,
   topCategory: "城建城管环保",
-  topCategoryCount: 257 + 72 + 193 + 73,
+  topCategoryCount: 257 + 72 + 193 + 130 + 54,
 };
 
 // Word cloud data - Hot topics keywords with weights
