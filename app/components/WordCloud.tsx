@@ -2,20 +2,16 @@
 
 import { motion } from "framer-motion";
 import { useMemo, useState, useEffect } from "react";
-import { wordCloudData, wordCloudCategoryColors } from "@/lib/chartData";
+interface WordCloudItem {
+  text: string;
+  value: number;
+  category: string;
+}
 
-// 2025年关键词词云数据（按权重排列）
-const keywords2025Cloud = [
-  { text: "老旧小区改造", value: 98, color: "#dc2626" },
-  { text: "社区医疗", value: 85, color: "#0891b2" },
-  { text: "道路维修", value: 78, color: "#dc2626" },
-  { text: "养老服务", value: 72, color: "#0891b2" },
-  { text: "垃圾分类", value: 68, color: "#dc2626" },
-  { text: "教育资源", value: 65, color: "#0891b2" },
-  { text: "物业管理", value: 55, color: "#7c3aed" },
-  { text: "社区治理", value: 48, color: "#7c3aed" },
-  { text: "便民服务", value: 35, color: "#059669" },
-];
+interface WordCloudProps {
+  wordCloudData: WordCloudItem[];
+  wordCloudCategoryColors: Record<string, string>;
+}
 
 // AI履职建议数据
 const aiRecommendations = [
@@ -103,7 +99,16 @@ function calculateCloudPositions(
   });
 }
 
-export default function WordCloud() {
+export default function WordCloud({ wordCloudData, wordCloudCategoryColors }: WordCloudProps) {
+  // Top 9 keywords by value for the 2025 highlight cloud
+  const keywords2025Cloud = [...wordCloudData]
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 9)
+    .map((w) => ({
+      text: w.text,
+      value: w.value,
+      color: wordCloudCategoryColors[w.category] || "#64748b",
+    }));
   // Calculate positions for main word cloud
   const positionedWords = useMemo(() => {
     const sorted = [...wordCloudData].sort((a, b) => b.value - a.value);

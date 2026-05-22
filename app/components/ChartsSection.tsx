@@ -16,16 +16,34 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import {
-  yearlyTotals,
-  categoryByYear,
-  aggregatedCategories,
-  channelData,
-  categoryColors,
-  summaryStats,
-} from "@/lib/chartData";
+import { categoryColors } from "@/lib/chartData";
 
-export default function ChartsSection() {
+interface YearlyTotal {
+  year: string;
+  total: number;
+  online: number;
+  offline: number;
+}
+
+interface CategoryRow {
+  year: string;
+  [key: string]: string | number;
+}
+
+interface ChartsSectionProps {
+  yearlyTotals: YearlyTotal[];
+  categoryByYear: CategoryRow[];
+}
+
+const CATEGORY_KEYS = [
+  "城建城管环保",
+  "科教文卫体",
+  "工业交通",
+  "政治法律党群",
+  "财政农业旅贸",
+];
+
+export default function ChartsSection({ yearlyTotals, categoryByYear }: ChartsSectionProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -43,6 +61,34 @@ export default function ChartsSection() {
       y: 0,
       transition: { duration: 0.5, ease: "easeOut" as const },
     },
+  };
+
+  const channelData = yearlyTotals.map((d) => ({
+    year: d.year,
+    线上: d.online,
+    线下: d.offline,
+  }));
+
+  const totalFeedback = yearlyTotals.reduce((sum, d) => sum + d.total, 0);
+  const totalOnline = yearlyTotals.reduce((sum, d) => sum + d.online, 0);
+  const totalOffline = yearlyTotals.reduce((sum, d) => sum + d.offline, 0);
+
+  const aggregatedCategories = CATEGORY_KEYS.map((key) => ({
+    name: key,
+    value: categoryByYear.reduce((sum, d) => sum + (Number(d[key]) || 0), 0),
+    fill: categoryColors[key] || "#64748b",
+  }));
+
+  const topCategory = aggregatedCategories.reduce((top, c) =>
+    c.value > top.value ? c : top
+  );
+
+  const summaryStats = {
+    totalFeedback,
+    totalOnline,
+    totalOffline,
+    topCategory: topCategory.name,
+    topCategoryCount: topCategory.value,
   };
 
   return (

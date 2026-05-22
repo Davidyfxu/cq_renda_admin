@@ -61,4 +61,22 @@ export async function getAllWelfareFeedback(): Promise<
   return rows as WelfareFeedbackRecord[];
 }
 
+export interface TrendConfig {
+  config_type: string;
+  config_key: string;
+  config_value: unknown;
+}
+
+export async function getAllTrendConfigs(): Promise<TrendConfig[]> {
+  try {
+    const [rows] = await pool.execute(
+      "SELECT config_type, config_key, config_value FROM trend_config ORDER BY config_type, id"
+    );
+    return rows as TrendConfig[];
+  } catch (error) {
+    console.error("Failed to fetch trend configs:", error);
+    return [];
+  }
+}
+
 export default pool;

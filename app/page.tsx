@@ -1,4 +1,5 @@
-import { getAllFeedback, getAllWelfareFeedback } from "@/lib/db";
+import { getAllFeedback, getAllWelfareFeedback, getAllTrendConfigs } from "@/lib/db";
+import { categoryColors } from "@/lib/chartData";
 import HeroSection from "./components/HeroSection";
 import ChartsSection from "./components/ChartsSection";
 import WordCloud from "./components/WordCloud";
@@ -8,10 +9,42 @@ import WelfareFeedbackTable from "./components/WelfareFeedbackTable";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+function parseTrendConfigs(configs: { config_type: string; config_key: string; config_value: unknown }[]) {
+  const yearlyTotals: { year: string; total: number; online: number; offline: number }[] = [];
+  const categoryByYear: { year: string; [key: string]: string | number }[] = [];
+  const wordCloud: { text: string; value: number; category: string }[] = [];
+
+  for (const row of configs) {
+    try {
+      const value = row.config_value as Record<string, unknown>;
+      switch (row.config_type) {
+        case "yearly_total":
+          yearlyTotals.push({ year: row.config_key, total: Number(value.total), online: Number(value.online), offline: Number(value.offline) });
+          break;
+        case "category":
+          categoryByYear.push({ year: row.config_key, ...value } as typeof categoryByYear[number]);
+          break;
+        case "wordcloud":
+          wordCloud.push({ text: row.config_key, value: Number(value.value), category: String(value.category) });
+          break;
+      }
+    } catch {
+      // skip malformed data
+    }
+  }
+
+  return { yearlyTotals, categoryByYear, wordCloud };
+}
+
 export default async function Home() {
   // Fetch data from MySQL
   const feedbackData = await getAllFeedback();
   const welfareFeedbackData = await getAllWelfareFeedback();
+  const trendConfigs = await getAllTrendConfigs();
+
+  // Parse trend configs from DB
+  const { yearlyTotals, categoryByYear, wordCloud: wordCloudData } =
+    parseTrendConfigs(trendConfigs);
 
   // Serialize dates for client components
   const serializedFeedback = feedbackData.map((item) => ({
@@ -37,11 +70,11 @@ export default async function Home() {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Charts Section - Now using static structured data */}
-      <ChartsSection />
+      {/* Charts Section */}
+      <ChartsSection yearlyTotals={yearlyTotals} categoryByYear={categoryByYear} />
 
       {/* Word Cloud Section */}
-      <WordCloud />
+      <WordCloud wordCloudData={wordCloudData} wordCloudCategoryColors={categoryColors} />
 
       {/* Feedback Table - Real-time data from MySQL */}
       <FeedbackTable data={serializedFeedback} />
